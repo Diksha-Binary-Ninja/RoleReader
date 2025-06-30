@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, request, jsonify
 import ollama
-
+import os
 app = Flask(__name__)
 
 # Use Ollama to handle both keywords + plain explanation

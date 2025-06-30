@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧾 Job Description Decoder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            padding: 40px;
+            color: #2d3436;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px #dfe6e9;
+        }
+        form {
+            max-width: 720px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        label {
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 16px;
+            border: 1px solid #ced6e0;
+            border-radius: 10px;
+            font-size: 1em;
+            resize: vertical;
+            background: #f7f9fa;
+        }
+        button {
+            background: linear-gradient(to right, #00b894, #00cec9);
+            color: white;
+            padding: 14px 28px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: linear-gradient(to right, #00cec9, #00b894);
+            transform: translateY(-2px);
+        }
+        .result {
+            max-width: 720px;
+            margin: 40px auto 0;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        .keywords span {
+            background: #ffeaa7;
+            color: #2d3436;
+            margin: 6px;
+            padding: 10px 18px;
+            border-radius: 30px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+        h2 {
+            color: #2d3436;
+            margin-top: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #dfe6e9;
+            padding-bottom: 6px;
+        }
+        p {
+            line-height: 1.6;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧾 Job Description Decoder</h1>
+    <form id="decodeForm">
+        <label for="job_description">Paste Job Description Below:</label>
+        <textarea name="job_description" id="job_description" required></textarea>
+        <button type="submit">🔍 Decode</button>
+    </form>
+
+    <div class="loading" id="loading">⏳ Decoding... Please wait</div>
+
+    <div class="result" id="output" style="display: none;">
+        <h2>✅ Keywords to Highlight in Resume:</h2>
+        <div class="keywords" id="keywords"></div>
+
+        <h2>🧠 What This Job Really Means:</h2>
+        <div id="decoded"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById("decodeForm");
+        const loading = document.getElementById("loading");
+        const output = document.getElementById("output");
+
+        form.onsubmit = async function(e) {
+            e.preventDefault();
+            const jd = document.getElementById("job_description").value;
+
+            output.style.display = "none";
+            loading.style.display = "block";
+
+            const response = await fetch('/decode', {
+                method: 'POST',
+                body: new URLSearchParams({ job_description: jd }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            const data = await response.json();
+
+            loading.style.display = "none";
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            output.style.display = "block";
+
+            const keywordBox = document.getElementById("keywords");
+            keywordBox.innerHTML = "";
+            data.keywords.forEach(k => {
+                const span = document.createElement("span");
+                span.textContent = k;
+                keywordBox.appendChild(span);
+            });
+
+            const decodedBox = document.getElementById("decoded");
+            decodedBox.innerHTML = "";
+            data.decoded.forEach(line => {
+                const p = document.createElement("p");
+                p.textContent = line;
+                decodedBox.appendChild(p);
+            });
+        }
+    </script>
+</body>
+</html>
